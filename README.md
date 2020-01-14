@@ -10,6 +10,6 @@ $ man clone
 
 $ echo $$
 
-go run -exec sudo main.go run --env "hello=container" --mem 100 bash
+go run -exec sudo main.go run --env "hello=container" --memory 50000000 bash
 
 ```
