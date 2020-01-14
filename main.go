@@ -37,21 +37,17 @@ func run(args ...string) {
 
 	fmt.Println("Running", args, os.Getpid())
 	cmd := exec.Command("/proc/self/exe", append([]string{"child"}, args...)...)
-
 	cmd.Stdout = os.Stdout
 	cmd.Stdin = os.Stdin
 	cmd.Stderr = os.Stderr
-
 	cmd.SysProcAttr = &syscall.SysProcAttr{
-		Cloneflags: syscall.CLONE_NEWUTS | syscall.CLONE_NEWPID,
+		Cloneflags: syscall.CLONE_NEWUTS | syscall.CLONE_NEWPID | syscall.CLONE_NEWNS,
+		Unshareflags: syscall.CLONE_NEWNS,
 	}
-
 	check(cmd.Run())
-
 }
 
 func child(args ...string) {
-
 	var env []string
 	var mem int
 
