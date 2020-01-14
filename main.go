@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"github.com/c2h5oh/datasize"
 	"github.com/urfave/cli/v2"
 	"io/ioutil"
 	"math/rand"
@@ -14,9 +13,9 @@ import (
 	"syscall"
 )
 
-func check(err error){
-	if err != nil{
-		if strings.HasPrefix(err.Error(), "exit status"){
+func check(err error) {
+	if err != nil {
+		if strings.HasPrefix(err.Error(), "exit status") {
 			os.Exit(0)
 		}
 		panic(err)
@@ -34,9 +33,7 @@ func main() {
 	}
 }
 
-
-func run(args ...string){
-
+func run(args ...string) {
 
 	fmt.Println("Running", args, os.Getpid())
 	cmd := exec.Command("/proc/self/exe", append([]string{"child"}, args...)...)
@@ -46,14 +43,14 @@ func run(args ...string){
 	cmd.Stderr = os.Stderr
 
 	cmd.SysProcAttr = &syscall.SysProcAttr{
-		Cloneflags:   syscall.CLONE_NEWUTS | syscall.CLONE_NEWPID,
+		Cloneflags: syscall.CLONE_NEWUTS | syscall.CLONE_NEWPID,
 	}
 
 	check(cmd.Run())
 
 }
 
-func child(args ...string){
+func child(args ...string) {
 
 	var env []string
 	var mem int
@@ -62,18 +59,18 @@ func child(args ...string){
 		Name: "run",
 		Flags: []cli.Flag{
 			&cli.StringSliceFlag{
-				Name:        "env",
-				Aliases:     []string{"e"},
+				Name:    "env",
+				Aliases: []string{"e"},
 			},
 			&cli.IntFlag{
-				Name:        "mem",
-				Aliases:     []string{"m"},
+				Name:    "memory",
+				Aliases: []string{"m"},
 			},
 		},
 		Action: func(c *cli.Context) error {
 			env = c.StringSlice("env")
 			args = c.Args().Slice()
-			mem = c.Int("mem")
+			mem = c.Int("memory")
 			return nil
 		},
 	}
@@ -82,7 +79,7 @@ func child(args ...string){
 
 	fmt.Println("Child", args, os.Getpid())
 
-	if mem > 0{
+	if mem > 0 {
 		cgMem(mem)
 	}
 
@@ -104,16 +101,12 @@ func child(args ...string){
 	check(cmd.Run())
 }
 
-
-
 func cgMem(maxMemSize int) {
-
-	maxmb := datasize.MB*datasize.ByteSize(maxMemSize)
-	size := fmt.Sprintf("%d", maxmb.Bytes())
+	size := fmt.Sprintf("%d", maxMemSize)
 
 	cgroups := "/sys/fs/cgroup/"
 	memory := filepath.Join(cgroups, "memory")
-	_ = os.Mkdir(filepath.Join(memory , "cfs"), 0755)
+	_ = os.Mkdir(filepath.Join(memory, "cfs"), 0755)
 	check(ioutil.WriteFile(filepath.Join(memory, "cfs/memory.swappiness"), []byte("0"), 0700))
 	check(ioutil.WriteFile(filepath.Join(memory, "cfs/memory.limit_in_bytes"), []byte(size), 0700))
 
