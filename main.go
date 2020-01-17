@@ -50,7 +50,6 @@ func run(args ...string) {
 func child(args ...string) {
 	var env []string
 	var mem int
-
 	app := &cli.App{
 		Name: "run",
 		Flags: []cli.Flag{
@@ -70,9 +69,7 @@ func child(args ...string) {
 			return nil
 		},
 	}
-
 	check(app.Run(append([]string{"child"}, args...)))
-
 	fmt.Println("Child", args, os.Getpid())
 
 	if mem > 0 {
@@ -80,7 +77,6 @@ func child(args ...string) {
 	}
 
 	cmd := exec.Command(args[0], args[1:]...)
-
 	cmd.Env = env
 
 	cmd.Stdout = os.Stdout
@@ -88,7 +84,6 @@ func child(args ...string) {
 	cmd.Stderr = os.Stderr
 
 	check(syscall.Sethostname([]byte(fmt.Sprintf("cfs-%d", rand.Int31n(10000)))))
-
 	check(syscall.Chroot("rootfs"))
 	check(syscall.Chdir("/"))
 	check(syscall.Mount("proc", "proc", "proc", 0, ""))

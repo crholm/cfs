@@ -6,7 +6,8 @@ $ mkdir rootfs
 $ sudo debootstrap eoan rootfs/
 
 
-$ man clone
+$ man 2 clone
+$ man 2 unshare
 
 $ echo $$
 
